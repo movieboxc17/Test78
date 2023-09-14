@@ -14,7 +14,7 @@
         <h1>Advanced File Processing Tools</h1>
     </header>
     <main>
-        <input type="file" id="fileInput" accept=".txt, .jpg, .jpeg, .png, .wav, .mp3, .pdf, .mp4, .avi, .csv">
+        <input type="file" id="fileInput" accept=".txt, .jpg, .jpeg, .png, .wav, .mp3, .pdf, .mp4, .avi, .csv, .json">
         <label for="toolSelect">Select a Tool:</label>
         <select id="toolSelect">
             <option value="display">Display File</option>
@@ -32,7 +32,8 @@
             <option value="codeEditor">Code Editor</option>
         </select>
         <button id="processButton">Process File</button>
-        <button id="downloadButton" disabled>Download Processed File</button>
+        <!-- Add a download button -->
+        <button id="downloadButton" style="display: none;">Download Processed File</button>
         <div id="output"></div>
     </main>
     <script>
@@ -42,8 +43,6 @@
             const processButton = document.getElementById("processButton");
             const downloadButton = document.getElementById("downloadButton");
             const outputDiv = document.getElementById("output");
-            let processedData = null;
-            let processedFileName = "processed_file.txt"; // You can set a default filename.
 
             processButton.addEventListener("click", function () {
                 const file = fileInput.files[0];
@@ -57,31 +56,44 @@
                         const fileType = file.type;
 
                         if (selectedTool === "display") {
-                            // Display File tool
-                            if (fileType.includes("text")) {
-                                outputDiv.textContent = fileContent;
-                            } else if (fileType.includes("image")) {
-                                outputDiv.innerHTML = `<img src="${fileContent}" alt="Uploaded Image">`;
-                            } else if (fileType.includes("audio")) {
-                                // Audio file display (you can add audio player controls)
-                                outputDiv.innerHTML = `<audio controls><source src="${fileContent}" type="${fileType}">Your browser does not support the audio element.</audio>`;
-                            } else if (fileType === "application/pdf") {
-                                // PDF file display (you can add a PDF viewer)
-                                outputDiv.innerHTML = `<iframe src="${fileContent}" width="100%" height="600px"></iframe>`;
-                            } else {
-                                outputDiv.textContent = "Unsupported file type.";
-                            }
+                            // ... (your existing code) ...
                         } else if (selectedTool === "analyzeText" && fileType.includes("text")) {
-                            // Text Analysis tool
-                            // Count words
-                            const wordCount = fileContent.split(/\s+/).filter(word => word.trim() !== "").length;
-                            outputDiv.innerHTML = `<p>Word Count: ${wordCount}</p>`;
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "manipulateImage" && fileType.includes("image")) {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "processAudio" && fileType.includes("audio")) {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "generatePDF" && fileType.includes("text")) {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "compressFile") {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "visualizeData" && fileType.includes("text")) {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "analyzeJSON" && fileType.includes("json")) {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "processVideo" && (fileType.includes("mp4") || fileType.includes("avi"))) {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "visualizeGeospatial" && fileType.includes("csv")) {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "convertDocument") {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "encryptDecrypt" && fileType.includes("text")) {
+                            // ... (your existing code) ...
+                        } else if (selectedTool === "codeEditor" && (fileType.includes("text") || fileType.includes("javascript") || fileType.includes("python"))) {
+                            // ... (your existing code) ...
+                        } else {
+                            outputDiv.textContent = "Unsupported tool or file type.";
                         }
 
-                        // Add logic for other tools here...
-
-                        outputDiv.textContent = "Processing completed.";
-                        downloadButton.removeAttribute("disabled");
+                        // Enable the download button and set the processed content for download
+                        downloadButton.style.display = "block";
+                        downloadButton.addEventListener("click", function () {
+                            const processedBlob = new Blob([fileContent], { type: fileType });
+                            const downloadLink = document.createElement("a");
+                            downloadLink.href = URL.createObjectURL(processedBlob);
+                            downloadLink.download = "processed_file" + getFileExtension(file.name);
+                            downloadLink.click();
+                        });
                     };
 
                     if (fileType.includes("text") || fileType.includes("image") || fileType.includes("audio") || fileType === "application/pdf" || fileType.includes("json") || fileType.includes("mp4") || fileType.includes("avi") || fileType.includes("csv")) {
@@ -94,23 +106,10 @@
                 }
             });
 
-            downloadButton.addEventListener("click", function () {
-                if (processedData) {
-                    // Create a Blob from the processed data
-                    const blob = new Blob([processedData], { type: "text/plain" });
-
-                    // Create a temporary link element to trigger the download
-                    const a = document.createElement("a");
-                    a.href = URL.createObjectURL(blob);
-                    a.download = processedFileName;
-
-                    // Trigger the download
-                    a.click();
-
-                    // Clean up
-                    URL.revokeObjectURL(a.href);
-                }
-            });
+            // Helper function to get file extension
+            function getFileExtension(filename) {
+                return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
+            }
         });
     </script>
 </body>
