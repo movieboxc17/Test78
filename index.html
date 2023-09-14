@@ -1,175 +1,181 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced File Processing Tools</title>
+    <title>File Editor</title>
     <style>
-        /* CSS styles here */
-        /* ... (your existing styles) ... */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #fileInput {
+            display: none;
+        }
+        #editor {
+            width: 80%;
+            height: 300px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .highlight {
+            background-color: yellow;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Advanced File Processing Tools</h1>
-    </header>
-    <main>
-        <input type="file" id="fileInput" accept=".txt, .jpg, .jpeg, .png, .wav, .mp3, .pdf, .mp4, .avi, .csv, .json">
-        <label for="toolSelect">Select a Tool:</label>
-        <select id="toolSelect">
-            <option value="display">Display File</option>
-            <option value="analyzeText">Text Analysis</option>
-            <option value="manipulateImage">Image Manipulation</option>
-            <option value="processAudio">Audio Processing</option>
-            <option value="generatePDF">Generate PDF</option>
-            <option value="compressFile">File Compression</option>
-            <option value="visualizeData">Data Visualization</option>
-            <option value="analyzeJSON">JSON Data Analysis</option>
-            <option value="processVideo">Video Processing</option>
-            <option value="visualizeGeospatial">Geospatial Data Visualization</option>
-            <option value="convertDocument">Document Conversion</option>
-            <option value="encryptDecrypt">Encryption/Decryption</option>
-            <option value="codeEditor">Code Editor</option>
-        </select>
-        <button id="processButton">Process File</button>
-        <!-- Add a download link -->
-        <a id="downloadLink" style="display: none;">Download Processed File</a>
-        <div id="output"></div>
-    </main>
+    <h1>File Editor</h1>
+    
+    <input type="file" id="fileInput" accept=".txt" />
+    <button onclick="openFile()">Open File</button>
+    <button onclick="saveFile()">Save File</button>
+    
+    <button onclick="uploadFile()">Upload File</button>
+    <button onclick="clearEditor()">Clear Editor</button>
+    <button onclick="countWords()">Count Words</button>
+    <label for="fontSize">Font Size:</label>
+    <select id="fontSize" onchange="changeFontSize()">
+        <option value="12px">12px</option>
+        <option value="16px">16px</option>
+        <option value="20px">20px</option>
+    </select>
+    <label for="textColor">Text Color:</label>
+    <input type="color" id="textColor" onchange="changeTextColor()">
+    
+    <label for="searchInput">Search:</label>
+    <input type="text" id="searchInput">
+    <button onclick="searchAndHighlight()">Search</button>
+    
+    <label for="alignment">Text Alignment:</label>
+    <select id="alignment" onchange="changeTextAlignment()">
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+        <option value="right">Right</option>
+    </select>
+    
+    <button onclick="downloadAsPDF()">Download as PDF</button>
+    <button onclick="countCharacters()">Count Characters</button>
+    
+    <div id="editor" contenteditable="true"></div>
+
+    <a id="downloadLink" style="display: none;">Download File</a>
+    
+    <div id="wordCount"></div>
+    <div id="charCount"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        let currentFile = null;
+        const editor = document.getElementById("editor");
+        const undoStack = [];
+        const redoStack = [];
+
+        function openFile() {
             const fileInput = document.getElementById("fileInput");
-            const toolSelect = document.getElementById("toolSelect");
-            const processButton = document.getElementById("processButton");
-            const downloadLink = document.getElementById("downloadLink");
-            const outputDiv = document.getElementById("output");
+            fileInput.click();
 
-            processButton.addEventListener("click", function () {
-                const file = fileInput.files[0];
-                const selectedTool = toolSelect.value;
+            fileInput.addEventListener("change", function (e) {
+                const file = e.target.files[0];
+                currentFile = file;
 
-                if (file) {
-                    const reader = new FileReader();
-
-                    reader.onload = function (e) {
-                        const fileContent = e.target.result;
-                        const fileType = file.type;
-
-                        if (selectedTool === "display") {
-                            // Display File tool
-                            if (fileType.includes("text")) {
-                                outputDiv.textContent = fileContent;
-                            } else if (fileType.includes("image")) {
-                                outputDiv.innerHTML = `<img src="${fileContent}" alt="Uploaded Image">`;
-                            } else if (fileType.includes("audio")) {
-                                // Audio file display (you can add audio player controls)
-                                outputDiv.innerHTML = `<audio controls><source src="${fileContent}" type="${fileType}">Your browser does not support the audio element.</audio>`;
-                            } else if (fileType === "application/pdf") {
-                                // PDF file display (you can add a PDF viewer)
-                                outputDiv.innerHTML = `<iframe src="${fileContent}" width="100%" height="600px"></iframe>`;
-                            } else {
-                                outputDiv.textContent = "Unsupported file type.";
-                            }
-                        } else if (selectedTool === "analyzeText" && fileType.includes("text")) {
-                            // Text Analysis tool
-                            // Add your text analysis code here (e.g., word count, character count, etc.)
-                            const wordCount = fileContent.split(/\s+/).filter(word => word.trim() !== "").length;
-                            const charCount = fileContent.length;
-                            outputDiv.innerHTML = `<p>Word Count: ${wordCount}</p><p>Character Count: ${charCount}</p>`;
-                        } else if (selectedTool === "manipulateImage" && fileType.includes("image")) {
-                            // Image Manipulation tool (You can add more image processing features)
-                            // For example, you can apply filters, resize, or rotate the image.
-                            // You may need to use a canvas for image manipulation.
-                            // Here's a basic example of rotating the image:
-                            const img = new Image();
-                            img.src = fileContent;
-
-                            img.onload = function () {
-                                const canvas = document.createElement("canvas");
-                                const ctx = canvas.getContext("2d");
-
-                                // Rotate the image 90 degrees
-                                canvas.width = img.height;
-                                canvas.height = img.width;
-                                ctx.rotate(Math.PI / 2);
-                                ctx.drawImage(img, 0, -canvas.width);
-
-                                outputDiv.innerHTML = "";
-                                outputDiv.appendChild(canvas);
-                            };
-                        } else if (selectedTool === "processAudio" && fileType.includes("audio")) {
-                            // Audio Processing tool
-                            // Add your audio processing code here (e.g., equalization, trimming, etc.)
-                            // You may need to use a library like the Web Audio API.
-                            outputDiv.textContent = "Audio processing functionality will be added here.";
-                        } else if (selectedTool === "generatePDF" && fileType.includes("text")) {
-                            // Generate PDF tool
-                            // Add your PDF generation code here (e.g., convert text to PDF).
-                            // You can use libraries like jsPDF.
-                            outputDiv.textContent = "PDF generation functionality will be added here.";
-                        } else if (selectedTool === "compressFile") {
-                            // File Compression tool
-                            // Add your file compression code here (e.g., zip, gzip).
-                            // You may need to use server-side processing for this feature.
-                            outputDiv.textContent = "File compression functionality will be added here.";
-                        } else if (selectedTool === "visualizeData" && fileType.includes("text")) {
-                            // Data Visualization tool
-                            // Add your data visualization code here (e.g., chart generation).
-                            // You can use libraries like Chart.js or D3.js.
-                            outputDiv.textContent = "Data visualization functionality will be added here.";
-                        } else if (selectedTool === "analyzeJSON" && fileType.includes("json")) {
-                            // JSON Data Analysis tool
-                            // Add your JSON data analysis code here.
-                            // You can parse and analyze JSON data, extract information, etc.
-                            outputDiv.textContent = "JSON data analysis functionality will be added here.";
-                        } else if (selectedTool === "processVideo" && (fileType.includes("mp4") || fileType.includes("avi"))) {
-                            // Video Processing tool
-                            // Add your video processing code here (e.g., trim, add effects).
-                            outputDiv.textContent = "Video processing functionality will be added here.";
-                        } else if (selectedTool === "visualizeGeospatial" && fileType.includes("csv")) {
-                            // Geospatial Data Visualization tool
-                            // Add your geospatial data visualization code here.
-                            // You can use libraries like Leaflet or D3.js for mapping.
-                            outputDiv.textContent = "Geospatial data visualization functionality will be added here.";
-                        } else if (selectedTool === "convertDocument") {
-                            // Document Conversion tool
-                            // Add your document conversion code here (e.g., convert between document formats).
-                            outputDiv.textContent = "Document conversion functionality will be added here.";
-                        } else if (selectedTool === "encryptDecrypt" && fileType.includes("text")) {
-                            // Encryption/Decryption tool
-                            // Add your encryption/decryption code here (e.g., AES encryption).
-                            outputDiv.textContent = "Encryption/decryption functionality will be added here.";
-                        } else if (selectedTool === "codeEditor" && (fileType.includes("text") || fileType.includes("javascript") || fileType.includes("python"))) {
-                            // Code Editor tool
-                            // Add a code editor for programming files.
-                            // You can use libraries like CodeMirror or Monaco Editor.
-                            // Display the code and allow editing.
-                            outputDiv.textContent = "Code editor functionality will be added here.";
-                        } else {
-                            outputDiv.textContent = "Unsupported tool or file type.";
-                        }
-
-                        // Enable the download link and set the processed content for download
-                        downloadLink.style.display = "block";
-                        downloadLink.href = URL.createObjectURL(new Blob([fileContent], { type: fileType }));
-                        downloadLink.download = "processed_file" + getFileExtension(file.name);
-                    };
-
-                    if (fileType.includes("text") || fileType.includes("image") || fileType.includes("audio") || fileType === "application/pdf" || fileType.includes("json") || fileType.includes("mp4") || fileType.includes("avi") || fileType.includes("csv")) {
-                        reader.readAsDataURL(file);
-                    } else {
-                        outputDiv.textContent = "Unsupported file type.";
-                    }
-                } else {
-                    outputDiv.textContent = "Please select a file.";
-                }
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const contents = event.target.result;
+                    editor.textContent = contents;
+                    
+                    // Track the initial state for undo/redo
+                    undoStack.push(contents);
+                };
+                reader.readAsText(file);
             });
+        }
 
-            // Helper function to get file extension
-            function getFileExtension(filename) {
-                return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
+        function saveFile() {
+            if (!currentFile) {
+                alert("No file selected.");
+                return;
             }
-        });
+
+            const editorContent = editor.textContent;
+            const blob = new Blob([editorContent], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+
+            const downloadLink = document.getElementById("downloadLink");
+            downloadLink.href = url;
+            downloadLink.download = currentFile.name;
+            downloadLink.style.display = "block";
+        }
+
+        function uploadFile() {
+            const fileUpload = document.getElementById("fileInput");
+            fileUpload.click();
+
+            fileUpload.addEventListener("change", function (e) {
+                const file = e.target.files[0];
+
+                // You can add code here to upload the file to the server using AJAX or fetch.
+            });
+        }
+
+        function clearEditor() {
+            editor.textContent = "";
+        }
+
+        function countWords() {
+            const editorContent = editor.textContent;
+            const words = editorContent.split(/\s+/).filter(word => word.trim() !== "");
+            document.getElementById("wordCount").textContent = `Word Count: ${words.length}`;
+        }
+
+        function changeFontSize() {
+            const fontSize = document.getElementById("fontSize").value;
+            editor.style.fontSize = fontSize;
+        }
+
+        function changeTextColor() {
+            const textColor = document.getElementById("textColor").value;
+            editor.style.color = textColor;
+        }
+
+        function searchAndHighlight() {
+            const searchText = document.getElementById("searchInput").value;
+            const regex = new RegExp(searchText, "gi");
+            const highlightedText = editor.textContent.replace(regex, (match) => `<span class="highlight">${match}</span>`);
+            editor.innerHTML = highlightedText;
+        }
+
+        function changeTextAlignment() {
+            const alignment = document.getElementById("alignment").value;
+            editor.style.textAlign = alignment;
+        }
+
+        function downloadAsPDF() {
+            const editorContent = editor.textContent;
+            const pdf = new jsPDF();
+            pdf.text(editorContent, 10, 10);
+            pdf.save("document.pdf");
+        }
+
+        function countCharacters() {
+            const editorContent = editor.textContent;
+            const charCount = editorContent.length;
+            document.getElementById("charCount").textContent = `Character Count: ${charCount}`;
+        }
+
+        function undo() {
+            if (undoStack.length > 0) {
+                const previousState = undoStack.pop();
+                redoStack.push(editor.textContent);
+                editor.textContent = previousState;
+            }
+        }
+
+        function redo() {
+            if (redoStack.length > 0) {
+                const nextState = redoStack.pop();
+                undoStack.push(editor.textContent);
+                editor.textContent = nextState;
+            }
+        }
     </script>
 </body>
 </html>
