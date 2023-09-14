@@ -56,54 +56,29 @@
                         const fileContent = e.target.result;
                         const fileType = file.type;
 
-                        // Your processing code here...
-
                         if (selectedTool === "display") {
                             // Display File tool
-                            // Your code here...
+                            if (fileType.includes("text")) {
+                                outputDiv.textContent = fileContent;
+                            } else if (fileType.includes("image")) {
+                                outputDiv.innerHTML = `<img src="${fileContent}" alt="Uploaded Image">`;
+                            } else if (fileType.includes("audio")) {
+                                // Audio file display (you can add audio player controls)
+                                outputDiv.innerHTML = `<audio controls><source src="${fileContent}" type="${fileType}">Your browser does not support the audio element.</audio>`;
+                            } else if (fileType === "application/pdf") {
+                                // PDF file display (you can add a PDF viewer)
+                                outputDiv.innerHTML = `<iframe src="${fileContent}" width="100%" height="600px"></iframe>`;
+                            } else {
+                                outputDiv.textContent = "Unsupported file type.";
+                            }
                         } else if (selectedTool === "analyzeText" && fileType.includes("text")) {
                             // Text Analysis tool
-                            // Your code here...
-                        } else if (selectedTool === "manipulateImage" && fileType.includes("image")) {
-                            // Image Manipulation tool
-                            // Your code here...
-                        } else if (selectedTool === "processAudio" && fileType.includes("audio")) {
-                            // Audio Processing tool
-                            // Your code here...
-                        } else if (selectedTool === "generatePDF" && fileType.includes("text")) {
-                            // Generate PDF tool
-                            // Your code here...
-                        } else if (selectedTool === "compressFile") {
-                            // File Compression tool
-                            // Your code here...
-                        } else if (selectedTool === "visualizeData" && fileType.includes("text")) {
-                            // Data Visualization tool
-                            // Your code here...
-                        } else if (selectedTool === "analyzeJSON" && fileType.includes("json")) {
-                            // JSON Data Analysis tool
-                            // Your code here...
-                        } else if (selectedTool === "processVideo" && (fileType.includes("mp4") || fileType.includes("avi"))) {
-                            // Video Processing tool
-                            // Your code here...
-                        } else if (selectedTool === "visualizeGeospatial" && fileType.includes("csv")) {
-                            // Geospatial Data Visualization tool
-                            // Your code here...
-                        } else if (selectedTool === "convertDocument") {
-                            // Document Conversion tool
-                            // Your code here...
-                        } else if (selectedTool === "encryptDecrypt" && fileType.includes("text")) {
-                            // Encryption/Decryption tool
-                            // Your code here...
-                        } else if (selectedTool === "codeEditor" && (fileType.includes("text") || fileType.includes("javascript") || fileType.includes("python"))) {
-                            // Code Editor tool
-                            // Your code here...
-                        } else {
-                            outputDiv.textContent = "Unsupported tool or file type.";
+                            // Count words
+                            const wordCount = fileContent.split(/\s+/).filter(word => word.trim() !== "").length;
+                            outputDiv.innerHTML = `<p>Word Count: ${wordCount}</p>`;
                         }
-                        
-                        // Update processedData and processedFileName based on your processing result.
-                        processedData = "Processed Data"; // Replace with your processed data.
-                        processedFileName = "processed_file.txt"; // Replace with the desired file name.
+
+                        // ... (add more tool-specific code for other tools)
 
                         outputDiv.textContent = "Processing completed.";
                         downloadButton.removeAttribute("disabled");
